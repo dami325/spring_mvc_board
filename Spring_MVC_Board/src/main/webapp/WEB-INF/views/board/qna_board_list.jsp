@@ -64,7 +64,7 @@
 		text-decoration: none;
 	}
 </style>
-<script src="js/jquery-3.6.1.js"></script>
+<script src="<%=request.getContextPath()%>/resources/js/jquery-3.6.1.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#btn2').click(function(){
@@ -85,7 +85,7 @@
 <body>
 	<header>
 		<!-- Login, Join 링크 표시 영역(inc/top.jsp 페이지 삽입) -->
-		<jsp:include page="<%=request.getContextPath() %>/WEB-INF/inc/top.jsp"></jsp:include>
+		<jsp:include page="../inc/top.jsp"></jsp:include>
 	</header>
 	<!-- 게시판 리스트 -->
 	<section id="listForm">
@@ -121,7 +121,7 @@
 								&nbsp;
 							</c:forEach>
 							<%-- 답글 제목 앞에 이미지 추가 --%>
-							<img src="images/re.gif">
+							<img src="<%=request.getContextPath()%>/resources/images/re.gif">
 						</c:if>
 						<%-- ============================================================ --%>
 						<a href="BoardDetail.bo?board_num=${board.board_num }&pageNum=${pageInfo.pageNum}" title="${board.board_subject }">
@@ -135,7 +135,19 @@
 		</table>
 	</section>
 	<section id="buttonArea">
-		<input type="button" value="글쓰기" onclick="location.href='BoardWriteForm.bo'" />
+	<!--  검색 기능 구현을 위한 form 태그 -->
+		<form action="BoardList.bo" method="get">
+			<input type="hidden" name="pageNum" value="${pageNum }">
+			<select name="searchType" >
+				<option value="subject">제목</option>
+				<option value="content">내용</option>
+				<option value="subject_content">제목&내용</option>
+				<option value="name">작성자</option>
+			</select>
+			<input type="text" name="keyword">
+			<input type="submit" value="검색">
+			<input type="button" value="글쓰기" onclick="location.href='BoardWriteForm.bo'" />
+		</form>
 	</section>
 	<section id="pageList">
 		<!-- 현재 페이지번호가 시작 페이지번호보다 클 때 현재 페이지번호 - 1 값으로 페이지 이동 -->

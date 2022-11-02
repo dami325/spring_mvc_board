@@ -97,9 +97,12 @@
 <!-- 	</update> -->
 
 		<!-- 만약, 이름, 성별, 이메일, 새패스워드가 널스트링이 입력된다고 가정했을 때 각 항목 판별  -->
+		<!-- 각 if 문들로 인해 마지막 콤마(,)가 SET 절의 마지막 항목에 포함될 수 있으므로 -->
+		<!-- trim 태그를 사용하여 SET 절에 포함되는 내용 중 마지막(suffix)에 오는 콤마(,)를 제거 -->
+		<!-- https://mybatis.org/mybatis-3/ko/dynamic-sql.html <<<<마이바티스 동적 SQL 예제사이트 -->
 		<update id="updateMember">
 		UPDATE member
-			SET 
+			<trim prefix="SET" suffixOverrides=",">
 				<if test="member.name != null and member.name !=''">
 				name = #{member.name},
 				</if>
@@ -112,6 +115,7 @@
 				<if test="newPasswd != null and newPasswd !=''">
 				passwd = #{newPasswd}
 				</if>
+			</trim>
 			WHERE 
 				id = #{member.id} AND passwd = #{member.passwd}
 	</update>

@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.itwillbs.mvc_board.mapper.BoardMapper">
+	<!-- 
+	기존 게시물의 가장 큰 글 번호(board_num)를 조회하여 + 1 값을 새 글 번호로 설정 후 INSERT 해야함
+	=> insert 태그 내에서 <selectKey> 태그를 사용하여 SELECT 구문 실행하고
+	   조회된 결과값을 INSERT 구문에 반영 가능
+	< 문법 >
+	<insert>
+		<selectKey keyProperty="값을 저장할 VO 객체 변수명" resultType="조회 결과 타입" order="실행 시점">
+			실행할 SELECT 구문
+		</selectKey>
+		=> keyProperty : 조회 데이터를 저장할 VO 객체의 실제 변수명(나중에 #{변수명} 으로 사용)
+		=> resultType : SELECT 구문 실행 시 기대되는 조회결과(리턴값)의 타입		
+		=> order : 해당 SELECT 구문을 실행할 시점
+		           BEFORE 는 INSERT 구문 실행 전 SELECT 구문 실행
+		           AFTER 는 INSERT 구문 실행 후 SELECT 구문 실행
+	</insert>
+	-->
+	<!-- insert 태그  -->
+	<insert id="insertBoard">
+		<selectKey keyProperty="board_num" resultType="integer" order="BEFORE">
+			SELECT MAX(board_num) FROM board
+		</selectKey>
+		INSERT 
+			INTO board
+					VALUES (
+							#{board_num} + 1,
+							#{board_name},
+							#{board_pass},
+							#{board_subject},
+							#{board_content},
+							'',
+							'',
+							#{board_num} + 1,
+							0,
+							0,
+							0,
+							now()
+					)
+	</insert>
+	
+	<!-- 전체 게시물 목록 갯수 조회(조회시COUNT(*) 함수 형태가 가장 빠름)-->
+	<select id="selectBoardListCount" resultType="integer">
+		SELECT COUNT(*) FROM board
+	</select>
+	
+	<select id="selectBoardList" resultType="com.itwillbs.mvc_board.vo.BoardVO">
+		SELECT * FROM board
+		ORDER BY 
+			board_re_ref DESC,
+			board_re_seq ASC
+		LIMIT #{startRow}, #{listLimit}
+	</select>
 	
 </mapper>
