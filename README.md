@@ -1,2 +1,4 @@
 # spring_mvc_board
-spring 연습노트 및 spring legacy project 기본 세팅 및 기초 공부노트
+
+- 기본 세팅 및 기초 공부노트
+- spring framework 기반 프로젝트를 위한 공부
