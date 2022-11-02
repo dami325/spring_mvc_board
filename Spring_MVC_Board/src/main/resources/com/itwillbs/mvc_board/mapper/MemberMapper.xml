@@ -71,17 +71,50 @@
 	=> INSERT 작업과 동일
 	=> 임시) 아이디와 기존 패스워드가 일치하는 레코드를 찾아 이름, 성별, 이메일, 새패스워드로 수정
 	-->
-	<update id="updateMember">
-		UPDATE member
-			SET name = #{member.name},
-				gender = #{member.gender},
-				email = #{member.email},
-				passwd = #{newPasswd}
-			WHERE id = #{member.id} AND passwd = #{member.passwd}
-	</update>
+<!-- 	<update id="updateMember"> -->
+<!-- 		UPDATE member -->
+<!-- 			SET name = #{member.name}, -->
+<!-- 				gender = #{member.gender}, -->
+<!-- 				email = #{member.email}, -->
+<!-- 				passwd = #{newPasswd} -->
+<!-- 			WHERE id = #{member.id} AND passwd = #{member.passwd} -->
+<!-- 	</update> -->
 	
 	<!-- 6번의 쿼리를 동적 쿼리로 변경하여 새 패스워드 존재 여부에 따라 새 패스워드 변경 여부 결정 -->
-	
+	<!-- 새 패스워드(newPasswd)가 존재할 경우(!= null) 패스워드 변경 항목 추가 -->
+	<!-- 단일 if문 : <if test"조건식">실행할 쿼리</if> -->
+<!-- 	<update id="updateMember"> -->
+<!-- 		UPDATE member -->
+<!-- 			SET  -->
+<!-- 				name = #{member.name}, -->
+<!-- 				gender = #{member.gender}, -->
+<!-- 				email = #{member.email} -->
+<!-- 				<if test="newPasswd != null and newPasswd !=''"> -->
+<!-- 				,passwd = #{newPasswd} -->
+<!-- 				</if> -->
+<!-- 			WHERE  -->
+<!-- 				id = #{member.id} AND passwd = #{member.passwd} -->
+<!-- 	</update> -->
+
+		<!-- 만약, 이름, 성별, 이메일, 새패스워드가 널스트링이 입력된다고 가정했을 때 각 항목 판별  -->
+		<update id="updateMember">
+		UPDATE member
+			SET 
+				<if test="member.name != null and member.name !=''">
+				name = #{member.name},
+				</if>
+				<if test="member.gender != null and member.gender !=''">
+				gender = #{member.gender},
+				</if>
+				<if test="member.email != null and member.email !=''">
+				email = #{member.email},
+				</if>
+				<if test="newPasswd != null and newPasswd !=''">
+				passwd = #{newPasswd}
+				</if>
+			WHERE 
+				id = #{member.id} AND passwd = #{member.passwd}
+	</update>
 </mapper>
 
 
