@@ -143,7 +143,7 @@
 				<option value="subject_content">제목&내용</option>
 				<option value="name">작성자</option>
 			</select>
-			<input type="text" name="keyword" required="required">
+			<input type="text" name="keyword">
 			<input type="submit" value="검색">
 			<input type="button" value="글쓰기" onclick="location.href='BoardWriteForm.bo'" />
 		</form>

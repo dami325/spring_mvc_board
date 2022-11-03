@@ -147,6 +147,23 @@
 				AND
 				board_pass = #{board_pass}
 	</delete>
+	
+	<!--  게시물 수정 -->
+	<update id="updateBoard">
+		UPDATE
+			board SET
+					board_name = #{board_name},
+					board_subject = #{board_subject},
+					board_content = #{board_content}
+				WHERE 
+					board_num = #{board_num}
+					AND
+					board_pass = #{board_pass}
+				
+	</update>
+	
+	
+	
 </mapper>
 
 

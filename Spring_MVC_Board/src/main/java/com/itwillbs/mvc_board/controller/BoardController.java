@@ -196,6 +196,34 @@ public class BoardController {
 		return "redirect:/BoardList.bo?pageNum=" + pageNum;
 	}
 	
+	// "BoardModifyForm.bo" 서블릿 요청에 대한 글 수정 폼 - GET
+	@GetMapping(value = "/BoardModifyForm.bo")
+	public String modify(@RequestParam int board_num, Model model) {
+		BoardVO board = service.getBoard(board_num);
+		
+		model.addAttribute("board", board);
+		
+		return "board/qna_board_modify";
+	}
+
+	// "BoardModifyPro.bo" 서블릿 요청에 대한 글 수정 - POST
+	@PostMapping(value = "/BoardModifyPro.bo")
+	public String modifyPro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model) {
+		// Service - modifyBoard() 메서드 호출하여 삭제 작업 요청 => updateBoard()
+		// => 파라미터 : BoardVO 객체, 리턴타입 : int(updateCount)
+		int updateCount = service.modifyBoard(board);
+		
+		// 수정 실패 시 "패스워드 틀림!" 메세지 저장 후 fail_back.jsp 페이지로 포워딩
+		// 아니면, BoardDetail.bo 서블릿 요청(글번호, 페이지번호 전달)
+		if(updateCount == 0) {
+			model.addAttribute("msg", "패스워드 틀림!");
+			return "member/fail_back";
+		}
+		
+		
+		return "redirect:/BoardDetail.bo?board_num=" + board.getBoard_num() + "&pageNum=" + pageNum;
+	}
+	
 }
 
 

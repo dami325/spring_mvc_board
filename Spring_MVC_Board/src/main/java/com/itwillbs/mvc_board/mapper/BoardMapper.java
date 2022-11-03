@@ -28,6 +28,8 @@ public interface BoardMapper {
 
 	// 게시물 삭제
 	int deleteBoard(BoardVO board);
+
+	int updateBoard(BoardVO board);
 	
 }
 
