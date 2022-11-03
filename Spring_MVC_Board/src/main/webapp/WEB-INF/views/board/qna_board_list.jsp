@@ -137,14 +137,13 @@
 	<section id="buttonArea">
 	<!--  검색 기능 구현을 위한 form 태그 -->
 		<form action="BoardList.bo" method="get">
-			<input type="hidden" name="pageNum" value="${pageNum }">
 			<select name="searchType" >
 				<option value="subject">제목</option>
 				<option value="content">내용</option>
 				<option value="subject_content">제목&내용</option>
 				<option value="name">작성자</option>
 			</select>
-			<input type="text" name="keyword">
+			<input type="text" name="keyword" required="required">
 			<input type="submit" value="검색">
 			<input type="button" value="글쓰기" onclick="location.href='BoardWriteForm.bo'" />
 		</form>
