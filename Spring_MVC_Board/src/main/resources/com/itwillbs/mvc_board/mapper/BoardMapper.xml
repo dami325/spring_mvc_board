@@ -24,33 +24,158 @@
 		</selectKey>
 		INSERT 
 			INTO board
-					VALUES (
-							#{board_num} + 1,
-							#{board_name},
-							#{board_pass},
-							#{board_subject},
-							#{board_content},
-							'',
-							'',
-							#{board_num} + 1,
-							0,
-							0,
-							0,
-							now()
-					)
+			VALUES (
+					#{board_num} + 1, 
+					#{board_name}, 
+					#{board_pass}, 
+					#{board_subject}, 
+					#{board_content}, 
+					'', 
+					'', 
+					#{board_num} + 1, 
+					0, 
+					0, 
+					0,
+					now())
 	</insert>
 	
-	<!-- 전체 게시물 목록 갯수 조회(조회시COUNT(*) 함수 형태가 가장 빠름)-->
+	<!-- 전체 게시물 목록 갯수 조회(COUNT(*) 함수 형태가 가장 빠름) -->
+<!-- 	<select id="selectBoardListCount" resultType="integer"> -->
+<!-- 		SELECT COUNT(*) FROM board -->
+<!-- 	</select> -->
+	
+	<!-- 전체 게시물 목록 갯수 조회(검색 기능 추가) -->
 	<select id="selectBoardListCount" resultType="integer">
-		SELECT COUNT(*) FROM board
+		SELECT 
+			COUNT(*) 
+			FROM board
+			<!-- choose, when, otherwise 태그를 사용하여 복수개의 조건 판별(if ~ else if 문 구조) -->
+			<!-- 1. 검색어(keyword)가 널스트링이 아닐 때 검색 수행 -->
+			<if test="!keyword.equals('')">
+				<!-- 2. 검색타입(search)에 따른 WHERE 변경 -->
+				<choose>
+					<when test="searchType.equals('subject')">
+						WHERE board_subject LIKE '%${keyword}%'
+					</when>
+					<when test="searchType.equals('content')">
+						WHERE board_content LIKE '%${keyword}%' 
+					</when>
+					<when test="searchType.equals('subject_content')">
+						WHERE board_subject LIKE '%${keyword}%' OR board_content LIKE '%${keyword}%'
+					</when>
+					<when test="searchType.equals('name')">
+						WHERE board_name LIKE '%${keyword}%'
+					</when>
+				</choose>
+			</if>
 	</select>
 	
+	<!-- 게시물 목록 조회 -->
+<!-- 	<select id="selectBoardList" resultType="com.itwillbs.mvc_board.vo.BoardVO"> -->
+<!-- 		SELECT *  -->
+<!-- 			FROM board -->
+<!-- 			ORDER BY -->
+<!-- 				board_re_ref DESC, -->
+<!-- 				board_re_seq ASC -->
+<!-- 			LIMIT #{startRow}, #{listLimit} -->
+<!-- 	</select> -->
+	
+	<!-- 게시물 목록 조회(검색 기능 추가) -->
 	<select id="selectBoardList" resultType="com.itwillbs.mvc_board.vo.BoardVO">
-		SELECT * FROM board
-		ORDER BY 
-			board_re_ref DESC,
-			board_re_seq ASC
-		LIMIT #{startRow}, #{listLimit}
+		SELECT * 
+			FROM board
+			<!-- choose, when, otherwise 태그를 사용하여 복수개의 조건 판별(if ~ else if 문 구조) -->
+			<!-- 1. 검색어(keyword)가 널스트링이 아닐 때 검색 수행 -->
+			<if test="!keyword.equals('')">
+				<!-- 2. 검색타입(search)에 따른 WHERE 변경 -->
+				<!-- 
+				주의! #{} 는 주로 파라미터 데이터 표시 용도로 사용하며 문자열의 경우 자동으로 따옴표 붙음 
+				반면, ${} 는 주로 컬럼명 등의 데이터가 아닌 용도로 사용하며 자동으로 따옴표 붙지 않음
+				(#{} 은 SQL 삽입 공격 방지 대책으로 사용되므로 데이터(파라미터) 부분에 사용함)
+				따라서, LIKE 절의 % 와 검색어 등을 조합해야할 경우 #{} 사용 시 %'#{데이터}'% 형식이 되므로
+				#{} 대신 ${} 를 사용하여 직접 '%${데이터}%' 형태로 작은따옴표를 붙여서 표시해야한다!
+				또는 CONCAT 함수를 통해 문자열 결합으로 사용해야한다!
+				
+				ex) WHERE board_subject LIKE '%${keyword}%'
+				또는
+				ex) WHERE board_subject LIKE CONCAT('%', #{keyword}, '%')
+				-->
+				<choose>
+					<when test="searchType.equals('subject')">
+						WHERE board_subject LIKE '%${keyword}%'
+					</when>
+					<when test="searchType.equals('content')">
+						WHERE board_content LIKE '%${keyword}%' 
+					</when>
+					<when test="searchType.equals('subject_content')">
+						WHERE board_subject LIKE '%${keyword}%' OR board_content LIKE '%${keyword}%'
+					</when>
+					<when test="searchType.equals('name')">
+						WHERE board_name LIKE '%${keyword}%'
+					</when>
+				</choose>
+			</if>
+			ORDER BY
+				board_re_ref DESC,
+				board_re_seq ASC
+			LIMIT #{startRow}, #{listLimit}
 	</select>
+	
+	<!-- 게시물 조회수 증가 -->
+	<update id="updateReadcount">
+		UPDATE board
+			SET
+				board_readcount = board_readcount + 1
+			WHERE
+				board_num = #{board_num}
+	</update>
+	
+	<!-- 게시물 상세 정보 조회 -->
+	<select id="selectBoard" resultType="com.itwillbs.mvc_board.vo.BoardVO">
+		SELECT * 
+			FROM board
+			WHERE
+				board_num = #{board_num}
+	</select>
+	
+	<!-- 게시물 삭제 -->
+	<delete id="deleteBoard">
+		DELETE
+			FROM board
+			WHERE 
+				board_num = #{board_num}
+				AND
+				board_pass = #{board_pass}
+	</delete>
+	
+	<!--  게시물 수정 -->
+	<update id="updateBoard">
+		UPDATE
+			board SET
+					board_name = #{board_name},
+					board_subject = #{board_subject},
+					board_content = #{board_content}
+				WHERE 
+					board_num = #{board_num}
+					AND
+					board_pass = #{board_pass}
+				
+	</update>
+	
+	
 	
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

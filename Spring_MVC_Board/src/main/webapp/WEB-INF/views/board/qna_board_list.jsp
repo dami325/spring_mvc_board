@@ -137,7 +137,6 @@
 	<section id="buttonArea">
 	<!--  검색 기능 구현을 위한 form 태그 -->
 		<form action="BoardList.bo" method="get">
-			<input type="hidden" name="pageNum" value="${pageNum }">
 			<select name="searchType" >
 				<option value="subject">제목</option>
 				<option value="content">내용</option>

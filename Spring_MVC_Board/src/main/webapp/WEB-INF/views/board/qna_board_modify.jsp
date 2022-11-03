@@ -46,16 +46,14 @@
 <body>
 	<header>
 		<!-- Login, Join 링크 표시 영역(inc/top.jsp 페이지 삽입) -->
-		<jsp:include page="<%=request.getContextPath() %>/WEB-INF/inc/top.jsp"></jsp:include>
+		<jsp:include page="../inc/top.jsp"></jsp:include>
 	</header>
 	<!-- 게시판 수정하기 -->
 	<section id="modifyForm">
 		<h2>글 수정하기</h2>
-		<form action="BoardModifyPro.bo" method="post" name="modifyForm" enctype="multipart/form-data">
+		<form action="BoardModifyPro.bo" method="post" name="modifyForm">
 			<input type="hidden" name="board_num" value="${param.board_num }" />
 			<input type="hidden" name="pageNum" value="${param.pageNum }" />
-			<!-- 파일 수정 시 기존 파일 삭제를 위해 기존 실제 파일명을 파라미터로 전달 필요 -->
-			<input type="hidden" name="board_real_file" value="${board.board_real_file }" />
 			<table>
 				<tr>
 					<td class="td_left"><label for="board_name">글쓴이</label></td>
@@ -80,14 +78,6 @@
 					<td class="td_right">
 						<textarea id="board_content" name="board_content" cols="40" rows="15" 
 									required="required">${board.board_content }</textarea>
-					</td>
-				</tr>
-				<tr>
-					<td class="td_left"><label for="board_file">파일 첨부</label></td>
-					<td class="td_right">
-						<!-- 파일 수정할 경우에만 선택하도록 required 속성 제거 -->
-						<input type="file" name="board_file" /><br>
-						(기존 파일 : ${board.board_file })
 					</td>
 				</tr>
 			</table>
