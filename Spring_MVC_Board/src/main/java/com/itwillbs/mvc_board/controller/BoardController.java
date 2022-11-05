@@ -96,7 +96,7 @@ public class BoardController {
 	
 	// "/BoardList.bo" 서블릿 요청에 대해 글 목록 조회 list() - GET
 	// => 파라미터 : 검색타입(searchType) => 기본값 널스트링
-	//				 검색어(keyword) => 기본값 널스트링
+	//				 검색어(keyword)  => 기본값 널스트링
 	//				 현재 페이지번호(pageNum) => 단, 기본값 1로 설정
 	//               데이터 저장할 Model 객체(model)
 	// => List<BoardVO> 객체 저장한 후 board/qna_board_list.jsp 페이지로 포워딩(Dispatch)
@@ -105,8 +105,6 @@ public class BoardController {
 			@RequestParam(defaultValue = "") String searchType, 
 			@RequestParam(defaultValue = "") String keyword, 
 			@RequestParam(defaultValue = "1") int pageNum, Model model) {
-		System.out.println("searchType : " + searchType);
-		System.out.println("keyword : " + keyword);
 		// -------------------------------------------------------------------
 		// 페이징 처리를 위한 계산 작업
 		int listLimit = 10; // 한 페이지 당 표시할 게시물 목록 갯수 
