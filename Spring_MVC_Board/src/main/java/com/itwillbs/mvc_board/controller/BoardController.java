@@ -222,6 +222,42 @@ public class BoardController {
 		return "redirect:/BoardDetail.bo?board_num=" + board.getBoard_num() + "&pageNum=" + pageNum;
 	}
 	
+	// BoardReplyForm.bo 서블릿 요청에 대한 답글 폼 - GET
+	@GetMapping(value = "/BoardReplyForm.bo")
+	public String reply(@RequestParam int board_num,@RequestParam int pageNum, Model model) {
+		BoardVO board = service.getBoard(board_num);
+		
+		if(board != null) {
+			model.addAttribute("board", board);
+			return "board/qna_board_reply";
+		}else {
+			model.addAttribute("msg", "조회 실패!");
+			return "member/fail_back";
+		}
+			
+	}
+	
+	
+	// BoardReplyPro.bo 서블릿 요청에 대한 답글 작성 요청 - POST
+	// Service - registReplyBoard() 메서드 정의
+	@PostMapping(value = "/BoardReplyPro.bo")
+	public String replyPro(@ModelAttribute BoardVO board,@RequestParam int pageNum,Model model) {
+		// Service - increaseBoardReSeq() 메서드 호출하여 (board_re_seq)순서번호 조정 요청
+		// => 파라미터 : BoardVO 객체 리턴타입 : void
+		service.increaseBoardReSeq(board);
+		
+		
+		int insertCount = service.registReplyBoard(board);
+		
+		if(insertCount > 0) {
+			return "redirect:/BoardList.bo";
+		} else {
+			model.addAttribute("msg", "글 쓰기 실패!");
+			return "member/fail_back";
+		}
+		
+	}
+	
 }
 
 

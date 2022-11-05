@@ -43,7 +43,6 @@
 <!-- 	<select id="selectBoardListCount" resultType="integer"> -->
 <!-- 		SELECT COUNT(*) FROM board -->
 <!-- 	</select> -->
-	
 	<!-- 전체 게시물 목록 갯수 조회(검색 기능 추가) -->
 	<select id="selectBoardListCount" resultType="integer">
 		SELECT 
@@ -162,8 +161,46 @@
 					board_pass = #{board_pass}
 				
 	</update>
+	<!--  답글 등록을 위한 게시물 순서번호(board_re_seq) 조정
+	 	  => 기존 답글들에 대한 순서번호 증가(UPDATE 구문 사용)
+	 	  => 원본글의 참조글번호(board_re_ref)와 같은 레코드들 중에서
+	 	     원본글의 순서번호 보다 큰 게시물들의 순서번호를 + 1씩 처리 -->
+	<update id="updateBoardReSeq">
+		UPDATE board 
+			SET 
+				board_re_seq=board_re_seq+1 
+			WHERE 
+				    board_re_ref = #{board_re_ref}
+				AND board_re_seq > #{board_re_seq}
+	</update>
 	
 	
+	<!-- 답글 등록 - INSERT 
+		=> 단, INSERT 작업 실행 전 먼저 SELECT 구문을 통해 글번호(board_num)의 최대값을 조회하여
+	   INSERT 시 board_num 값을 조회결과 + 1 값으로 설정
+	   => 또한, INSERT 과정에서 들여쓰기레벨(board_re_lev)과 순서번호(board_re_seq)는 전달받은 값 + 1 값을 사용-->
+	
+	<insert id="insertReplyBoard">
+		<selectKey keyProperty="board_num" resultType="integer" order="BEFORE">
+			SELECT MAX(board_num) 
+			FROM board		
+		</selectKey>
+				INSERT 
+			INTO board
+			VALUES (
+					#{board_num} + 1, 
+					#{board_name}, 
+					#{board_pass}, 
+					#{board_subject}, 
+					#{board_content}, 
+					'', 
+					'', 
+					#{board_re_ref}, 
+					#{board_re_lev}+1, 
+					#{board_re_seq}+1, 
+					0,
+					now())
+	</insert>
 	
 </mapper>
 

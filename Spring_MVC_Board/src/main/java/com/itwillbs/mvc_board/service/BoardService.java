@@ -53,6 +53,17 @@ public class BoardService {
 	public int modifyBoard(BoardVO board) {
 		return mapper.updateBoard(board);
 	}
+
+	// 순서번호(board_re_seq) 조정
+	// => 파라미터 : BoardVO 객체 리턴타입 : VOID
+	public void increaseBoardReSeq(BoardVO board) {
+		mapper.updateBoardReSeq(board);
+	}
+
+	// 답글 등록 요청
+	public int registReplyBoard(BoardVO board) {
+		return mapper.insertReplyBoard(board);
+	}
 	
 }
 

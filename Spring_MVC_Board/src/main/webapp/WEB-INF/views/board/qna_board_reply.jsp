@@ -45,12 +45,12 @@
 <body>
 	<header>
 		<!-- Login, Join 링크 표시 영역(inc/top.jsp 페이지 삽입) -->
-		<jsp:include page="<%=request.getContextPath() %>/WEB-INF/inc/top.jsp"></jsp:include>
+		<jsp:include page="../inc/top.jsp"></jsp:include>
 	</header>
 	<!-- 게시판 답변하기 -->
 	<section id="replyForm">
 		<h2>글 답변하기</h2>
-		<form action="BoardReplyPro.bo" method="post" name="replyForm" enctype="multipart/form-data">
+		<form action="BoardReplyPro.bo" method="post" name="replyForm">
 			<!-- 답변 글 작성에 필요한 게시물 정보 중 입력받지 않는 정보도 함께 전달 -->
 			<input type="hidden" name="pageNum" value="${param.pageNum }">
 			<input type="hidden" name="board_num" value="${param.board_num }">
@@ -60,7 +60,7 @@
 			<table>
 				<tr>
 					<td class="td_left"><label for="board_name">글쓴이</label></td>
-					<td class="td_right"><input type="text" name="board_name" required="required" /></td>
+					<td class="td_right"><input type="text" name="board_name" required="required"/></td>
 				</tr>
 				<tr>
 					<td class="td_left"><label for="board_pass">비밀번호</label></td>
@@ -69,7 +69,7 @@
 				<tr>
 					<td class="td_left"><label for="board_subject">제목</label></td>
 					<td class="td_right">
-						<input type="text" name="board_subject" value="${board.board_subject }" required="required" />
+						<input type="text" name="board_subject" value="Re:${board.board_subject }" required="required" />
 					</td>
 				</tr>
 				<tr>
@@ -77,10 +77,6 @@
 					<td class="td_right">
 						<textarea id="board_content" name="board_content" cols="40" rows="15" required="required">${board.board_content }</textarea>
 					</td>
-				</tr>
-				<tr>
-					<td class="td_left"><label for="board_file">파일 첨부</label></td>
-					<td class="td_right"><input type="file" name="board_file" required="required" /></td>
 				</tr>
 			</table>
 			<section id="commandCell">
