@@ -2,6 +2,8 @@ package com.itwillbs.mvc_board.vo;
 
 import java.sql.Date;
 
+import org.springframework.web.multipart.MultipartFile;
+
 /*
  * mvc_board3 데이터베이스 생성 및 board 테이블 정의
     CREATE DATABASE mvc_board3;
@@ -13,8 +15,8 @@ import java.sql.Date;
 		board_pass VARCHAR(16) NOT NULL,
 		board_subject VARCHAR(50) NOT NULL,
 		board_content VARCHAR(2000) NOT NULL,
-		board_file VARCHAR(50) NOT NULL,
-		board_real_file VARCHAR(50) NOT NULL,
+		board_file VARCHAR(200) NOT NULL,
+		board_real_file VARCHAR(200) NOT NULL,
 		board_re_ref INT NOT NULL,
 		board_re_lev INT NOT NULL,
 		board_re_seq INT NOT NULL,
@@ -40,6 +42,7 @@ public class BoardVO {
 	private int board_re_seq;
 	private int board_readcount;
 	private Date board_date; // java.sql.Date
+	private MultipartFile file; // 파일 처리(input type="file")를 위한 MultipartFile 타입 선언
 	
 	public int getBoard_num() {
 		return board_num;
@@ -113,14 +116,20 @@ public class BoardVO {
 	public void setBoard_date(Date board_date) {
 		this.board_date = board_date;
 	}
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	
 	@Override
 	public String toString() {
-		return "BoardBean [board_num=" + board_num + ", board_name=" + board_name + ", board_pass=" + board_pass
+		return "BoardVO [board_num=" + board_num + ", board_name=" + board_name + ", board_pass=" + board_pass
 				+ ", board_subject=" + board_subject + ", board_content=" + board_content + ", board_file=" + board_file
 				+ ", board_real_file=" + board_real_file + ", board_re_ref=" + board_re_ref + ", board_re_lev="
 				+ board_re_lev + ", board_re_seq=" + board_re_seq + ", board_readcount=" + board_readcount
-				+ ", board_date=" + board_date + "]";
+				+ ", board_date=" + board_date + ", file=" + file + "]";
 	}
 	
 }

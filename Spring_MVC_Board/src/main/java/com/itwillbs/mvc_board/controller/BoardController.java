@@ -1,6 +1,9 @@
 package com.itwillbs.mvc_board.controller;
 
+import java.io.File;
 import java.util.List;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.itwillbs.mvc_board.service.BoardService;
 import com.itwillbs.mvc_board.vo.BoardVO;
@@ -26,9 +30,52 @@ public class BoardController {
 	}
 	
 	// "/BoardWritePro.bo" 서블릿 요청에 대해 글쓰기 작업 수행할 writePro() - POST
+//	@PostMapping(value = "/BoardWritePro.bo")
+//	public String writePro(@ModelAttribute BoardVO board, Model model) {
+//		int insertCount = service.registBoard(board);
+//		
+//		if(insertCount > 0) {
+//			return "redirect:/BoardList.bo";
+//		} else {
+//			model.addAttribute("msg", "글 쓰기 실패!");
+//			return "member/fail_back";
+//		}
+//		
+//	}
+	
+	// "/BoardWritePro.bo" 서블릿 요청에 대해 글쓰기 작업 수행할 writePro() - POST
+	// => 파일 업로드 기능 추가
 	@PostMapping(value = "/BoardWritePro.bo")
-	public String writePro(@ModelAttribute BoardVO board, Model model) {
-		int insertCount = service.registBoard(board);
+	public String writePro(@ModelAttribute BoardVO board, Model model, HttpSession session) {
+		// 주의! 파일 업로드 기능을 통해 전달받은 파일 객체를 다루기 위해서는
+		// BoardVO 클래스 내에 MultipartFile 타입 변수와 Getter/Setter 정의 필수!
+		// => input type="file" 태그의 name 속성과 동일한 변수명 사용해야함
+//		System.out.println(board.getFile());
+		
+		// 가상 업로드 경로에 대한 실제 업로드 경로 알아내기
+		// => 단, request 객체에 getServletContext() 메서드 대신, session 객체로 동일한 작업 수행
+		//    (request 객체에 해당 메서드 없음)
+		String uploadDir = "/resources/upload"; // 가상의 업로드 경로
+		// => webapp/resources 폴더 내에 upload 폴더 생성 필요
+		String saveDir = session.getServletContext().getRealPath(uploadDir);
+		System.out.println("실제 업로드 경로 : " + saveDir);
+		
+		File f = new File(saveDir); // 실제 경로를 갖는 File 객체 생성
+		// 만약, 해당 경로 상에 디렉토리(폴더)가 존재하지 않을 경우 생성
+		if(!f.exists()) { // 해당 경로가 존재하지 않을 경우
+			// 경로 상의 존재하지 않는 모든 경로 생성
+			f.mkdirs();
+		}
+		
+		//BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
+		MultipartFile mFile = board.getFile();
+		
+		String originalFileName = mFile.getOriginalFilename();
+		
+		
+		
+//		int insertCount = service.registBoard(board);
+		int insertCount = 0;
 		
 		if(insertCount > 0) {
 			return "redirect:/BoardList.bo";
@@ -195,7 +242,7 @@ public class BoardController {
 		
 		return "redirect:/BoardList.bo?pageNum=" + pageNum;
 	}
-	
+
 	// "BoardModifyForm.bo" 서블릿 요청에 대한 글 수정 폼 - GET
 	@GetMapping(value = "/BoardModifyForm.bo")
 	public String modify(@RequestParam int board_num, Model model) {
@@ -205,11 +252,11 @@ public class BoardController {
 		
 		return "board/qna_board_modify";
 	}
-
+	
 	// "BoardModifyPro.bo" 서블릿 요청에 대한 글 수정 - POST
 	@PostMapping(value = "/BoardModifyPro.bo")
 	public String modifyPro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model) {
-		// Service - modifyBoard() 메서드 호출하여 삭제 작업 요청 => updateBoard()
+		// Service - modifyBoard() 메서드 호출하여 수정 작업 요청
 		// => 파라미터 : BoardVO 객체, 리턴타입 : int(updateCount)
 		int updateCount = service.modifyBoard(board);
 		
@@ -220,44 +267,41 @@ public class BoardController {
 			return "member/fail_back";
 		}
 		
-		
 		return "redirect:/BoardDetail.bo?board_num=" + board.getBoard_num() + "&pageNum=" + pageNum;
 	}
 	
-	// BoardReplyForm.bo 서블릿 요청에 대한 답글 폼 - GET
+	// "/BoardReplyForm.bo" 서블릿 요청에 대한 답글 폼 - GET
+	// Service - getBoard() 메서드 재사용
 	@GetMapping(value = "/BoardReplyForm.bo")
-	public String reply(@RequestParam int board_num,@RequestParam int pageNum, Model model) {
+	public String reply(@RequestParam int board_num, Model model) {
 		BoardVO board = service.getBoard(board_num);
 		
 		if(board != null) {
 			model.addAttribute("board", board);
 			return "board/qna_board_reply";
-		}else {
-			model.addAttribute("msg", "조회 실패!");
+		} else {
+			model.addAttribute("msg", "조회 실패");
 			return "member/fail_back";
 		}
-			
 	}
 	
-	
-	// BoardReplyPro.bo 서블릿 요청에 대한 답글 작성 요청 - POST
-	// Service - registReplyBoard() 메서드 정의
+	// "/BoardReplyPro.bo" 서블릿 요청에 대한 답글 작성 요청 - POST
 	@PostMapping(value = "/BoardReplyPro.bo")
-	public String replyPro(@ModelAttribute BoardVO board,@RequestParam int pageNum,Model model) {
-		// Service - increaseBoardReSeq() 메서드 호출하여 (board_re_seq)순서번호 조정 요청
-		// => 파라미터 : BoardVO 객체 리턴타입 : void
+	public String replyPro(@ModelAttribute BoardVO board, int pageNum, Model model) {
+		// Service - increaseBoardReSeq() 메서드 호출하여 순서번호(board_re_seq) 조정 요청
+		// => 파라미터 : BoardVO 객체   리턴타입 : void
 		service.increaseBoardReSeq(board);
 		
-		
+		// Service - registReplyBoard() 메서드 호출하여 답글 등록 요청
+		// => 파라미터 : BoardVO 객체   리턴타입 : int(insertCount)
 		int insertCount = service.registReplyBoard(board);
 		
 		if(insertCount > 0) {
 			return "redirect:/BoardList.bo";
 		} else {
-			model.addAttribute("msg", "글 쓰기 실패!");
+			model.addAttribute("msg", "답글 쓰기 실패!");
 			return "member/fail_back";
 		}
-		
 	}
 	
 }

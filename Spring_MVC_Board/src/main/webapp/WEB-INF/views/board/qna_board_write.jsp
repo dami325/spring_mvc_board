@@ -46,8 +46,7 @@
 	<!-- 게시판 등록 -->
 	<section id="writeForm">
 		<h1>게시판 글 등록</h1>
-		<!-- 파일 업로드 기능 사용 위해 enctype 속성 설정 => cos.jar 라이브러리 필요 -->
-		<form action="BoardWritePro.bo" method="post" name="boardForm" >
+		<form action="BoardWritePro.bo" method="post" name="boardForm" enctype="multipart/form-data">
 			<table>
 				<tr>
 					<td class="td_left"><label for="board_name">글쓴이</label></td>
@@ -66,6 +65,14 @@
 					<td class="td_right">
 						<textarea id="board_content" name="board_content" cols="40" rows="15" required="required"></textarea>
 					</td>
+				</tr>
+				<tr>
+					<td class="td_left"><label for="file">파일</label></td>
+					<td class="td_right"><input type="file" name="file" required="required" /></td>
+					<!-- 
+					주의! BoardVO 객체의 String 타입 파일명(board_file)과 동일한 name 속성이 아니라
+					MultipartFile 객체 타입의 파일명과 동일해야한다! 
+					-->
 				</tr>
 			</table>
 			<section id="commandCell">
