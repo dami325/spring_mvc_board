@@ -30,8 +30,8 @@
 					#{board_pass}, 
 					#{board_subject}, 
 					#{board_content}, 
-					'', 
-					'', 
+					#{board_file},
+					#{board_real_file},
 					#{board_num} + 1, 
 					0, 
 					0, 
@@ -150,6 +150,7 @@
 	
 	<!--  게시물 수정 -->
 	<update id="updateBoard">
+	<if test="${board_file}.equals('')">
 		UPDATE
 			board SET
 					board_name = #{board_name},
@@ -159,6 +160,19 @@
 					board_num = #{board_num}
 					AND
 					board_pass = #{board_pass}
+	</if>
+		UPDATE
+			board SET
+					board_name = #{board_name},
+					board_subject = #{board_subject},
+					board_content = #{board_content},
+					board_file = #{board_file},
+					board_real_file = #{board_real_file}
+				WHERE 
+					board_num = #{board_num}
+					AND
+					board_pass = #{board_pass}
+	
 				
 	</update>
 	<!--  답글 등록을 위한 게시물 순서번호(board_re_seq) 조정

@@ -51,7 +51,7 @@
 	<!-- 게시판 수정하기 -->
 	<section id="modifyForm">
 		<h2>글 수정하기</h2>
-		<form action="BoardModifyPro.bo" method="post" name="modifyForm">
+		<form action="BoardModifyPro.bo" method="post" name="modifyForm" enctype="multipart/form-data">
 			<input type="hidden" name="board_num" value="${param.board_num }" />
 			<input type="hidden" name="pageNum" value="${param.pageNum }" />
 			<table>
@@ -78,6 +78,13 @@
 					<td class="td_right">
 						<textarea id="board_content" name="board_content" cols="40" rows="15" 
 									required="required">${board.board_content }</textarea>
+					</td>
+				</tr>
+				<tr>
+					<td class="td_left"><label for="file">파일 첨부</label></td>
+					<td class="td_right">
+						<input type="file" name="file"/><br>
+						(기존 파일 : ${board.board_file })
 					</td>
 				</tr>
 			</table>

@@ -72,7 +72,7 @@
 			<tr>
 				<th width="70">첨부파일</th>
 				<td>
-					<a href="upload/${board.board_real_file }" download="${board.board_file }">${board.board_file }</a>
+					<a href="<%=request.getContextPath() %>/resources/upload/${board.board_real_file }" download="${board.board_file }">${board.board_file }</a>
 				</td>
 				<th width="70">조회수</th>
 				<td>${board.board_readcount }</td>
