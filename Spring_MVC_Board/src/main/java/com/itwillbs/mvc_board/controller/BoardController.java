@@ -69,7 +69,7 @@ public class BoardController {
 			f.mkdirs();
 		}
 		
-		//BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
+		// BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
 		MultipartFile mFile = board.getFile();
 		
 		String originalFileName = mFile.getOriginalFilename();
@@ -83,25 +83,26 @@ public class BoardController {
 		String uuid = UUID.randomUUID().toString();
 		System.out.println("업로드 될 파일명 : " + uuid + "_" + originalFileName);
 		
-		//BoardVO 객체에 원본 파일명과 업로드 될 파일명 저장
+		// BoardVO 객체에 원본 파일명과 업로드 될 파일명 저장
 		// => 단, uuid 를 결합한 파일명을 사용할 경우 원본 파일명과 실제 파일명을 구분할 필요 없이
-		// 하나의 컬럼에 저장해두고, 원본 파일명이 필요할 경우 "_"를 구분자로 지정하여
-		// 문자열을 분리하면 두번째 파라미터가 원본 파일명이 된다!
+		//    하나의 컬럼에 저장해두고, 원본 파일명이 필요할 경우 "_" 를 구분자로 지정하여
+		//    문자열을 분리하면 두번째 파라미터가 원본 파일명이 된다!
 		board.setBoard_file(originalFileName); // 실제로는 불필요한 컬럼
 		board.setBoard_real_file(uuid + "_" + originalFileName);
 		
 		int insertCount = service.registBoard(board);
 		
-		
 		if(insertCount > 0) {
 			// 파일 등록 작업 성공 시 실제 폴더 위치에 파일 업로드 수행
 			// => MultipartFile 객체의 transferTo() 메서드를 호출하여 파일 업로드 작업 수행
-			// (파라미터 : new File(업로드 걍로, 업로드 할 파일명)
+			//    (파라미터 : new File(업로드 경로, 업로드 할 파일명))
 			try {
 				mFile.transferTo(new File(saveDir, board.getBoard_real_file()));
 			} catch (IllegalStateException e) {
+				System.out.println("IllegalStateException");
 				e.printStackTrace();
 			} catch (IOException e) {
+				System.out.println("IOException");
 				e.printStackTrace();
 			}
 			
@@ -170,7 +171,7 @@ public class BoardController {
 	
 	// "/BoardList.bo" 서블릿 요청에 대해 글 목록 조회 list() - GET
 	// => 파라미터 : 검색타입(searchType) => 기본값 널스트링
-	//				 검색어(keyword)  => 기본값 널스트링
+	//				 검색어(keyword) => 기본값 널스트링
 	//				 현재 페이지번호(pageNum) => 단, 기본값 1로 설정
 	//               데이터 저장할 Model 객체(model)
 	// => List<BoardVO> 객체 저장한 후 board/qna_board_list.jsp 페이지로 포워딩(Dispatch)
@@ -179,6 +180,8 @@ public class BoardController {
 			@RequestParam(defaultValue = "") String searchType, 
 			@RequestParam(defaultValue = "") String keyword, 
 			@RequestParam(defaultValue = "1") int pageNum, Model model) {
+		System.out.println("searchType : " + searchType);
+		System.out.println("keyword : " + keyword);
 		// -------------------------------------------------------------------
 		// 페이징 처리를 위한 계산 작업
 		int listLimit = 10; // 한 페이지 당 표시할 게시물 목록 갯수 
@@ -280,46 +283,7 @@ public class BoardController {
 	
 	// "BoardModifyPro.bo" 서블릿 요청에 대한 글 수정 - POST
 	@PostMapping(value = "/BoardModifyPro.bo")
-	public String modifyPro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model,HttpSession session) {
-		
-		
-		// 가상 업로드 경로에 대한 실제 업로드 경로 알아내기
-		// => 단, request 객체에 getServletContext() 메서드 대신, session 객체로 동일한 작업 수행
-		//    (request 객체에 해당 메서드 없음)
-		String uploadDir = "/resources/upload"; // 가상의 업로드 경로
-		// => webapp/resources 폴더 내에 upload 폴더 생성 필요
-		String saveDir = session.getServletContext().getRealPath(uploadDir);
-		System.out.println("실제 업로드 경로 : " + saveDir);
-		
-		File f = new File(saveDir); // 실제 경로를 갖는 File 객체 생성
-		// 만약, 해당 경로 상에 디렉토리(폴더)가 존재하지 않을 경우 생성
-		if(!f.exists()) { // 해당 경로가 존재하지 않을 경우
-			// 경로 상의 존재하지 않는 모든 경로 생성
-			f.mkdirs();
-		}
-		
-		//BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
-		MultipartFile mFile = board.getFile();
-		
-		String originalFileName = mFile.getOriginalFilename();
-		long fileSize = mFile.getSize();
-		System.out.println("파일명 : " + originalFileName);
-		System.out.println("파일크기 : " + fileSize + " Byte");
-		
-		// 파일명 중복 방지를 위한 대책
-		// 시스템에서 랜덤ID 값을 추출하여 파일명 앞에 붙여 "랜덤ID값_파일명" 형식으로 설정
-		// 랜덤ID 는 UUID 클래스 활용(UUID : 범용 고유 식별자)
-		String uuid = UUID.randomUUID().toString();
-		System.out.println("업로드 될 파일명 : " + uuid + "_" + originalFileName);
-		
-		//BoardVO 객체에 원본 파일명과 업로드 될 파일명 저장
-		// => 단, uuid 를 결합한 파일명을 사용할 경우 원본 파일명과 실제 파일명을 구분할 필요 없이
-		// 하나의 컬럼에 저장해두고, 원본 파일명이 필요할 경우 "_"를 구분자로 지정하여
-		// 문자열을 분리하면 두번째 파라미터가 원본 파일명이 된다!
-		board.setBoard_file(originalFileName); // 실제로는 불필요한 컬럼
-		board.setBoard_real_file(uuid + "_" + originalFileName);
-		
-		
+	public String modifyPro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model) {
 		// Service - modifyBoard() 메서드 호출하여 수정 작업 요청
 		// => 파라미터 : BoardVO 객체, 리턴타입 : int(updateCount)
 		int updateCount = service.modifyBoard(board);
@@ -367,7 +331,6 @@ public class BoardController {
 			return "member/fail_back";
 		}
 	}
-	
 	
 }
 

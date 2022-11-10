@@ -85,8 +85,6 @@ public class PageInfo {
 				+ ", endPage=" + endPage + "]";
 	}
 	
-	
-	
 }
 
 

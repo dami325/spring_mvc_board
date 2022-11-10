@@ -64,7 +64,7 @@
 		text-decoration: none;
 	}
 </style>
-<script src="<%=request.getContextPath()%>/resources/js/jquery-3.6.1.js"></script>
+<script src="js/jquery-3.6.1.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#btn2').click(function(){
@@ -121,7 +121,7 @@
 								&nbsp;
 							</c:forEach>
 							<%-- 답글 제목 앞에 이미지 추가 --%>
-							<img src="<%=request.getContextPath()%>/resources/images/re.gif">
+							<img src="<%=request.getContextPath() %>/resources/images/re.gif">
 						</c:if>
 						<%-- ============================================================ --%>
 						<a href="BoardDetail.bo?board_num=${board.board_num }&pageNum=${pageInfo.pageNum}" title="${board.board_subject }">
@@ -135,9 +135,9 @@
 		</table>
 	</section>
 	<section id="buttonArea">
-	<!--  검색 기능 구현을 위한 form 태그 -->
+		<!-- 검색 기능 구현을 위한 form 태그 -->
 		<form action="BoardList.bo" method="get">
-			<select name="searchType" >
+			<select name="searchType">
 				<option value="subject">제목</option>
 				<option value="content">내용</option>
 				<option value="subject_content">제목&내용</option>

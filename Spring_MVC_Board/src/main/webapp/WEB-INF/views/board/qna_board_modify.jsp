@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <title>MVC 게시판</title>
 <link href="<%=request.getContextPath() %>/resources/css/top.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/resources/css/default.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 	#modifyForm {
 		width: 500px;
@@ -51,7 +52,7 @@
 	<!-- 게시판 수정하기 -->
 	<section id="modifyForm">
 		<h2>글 수정하기</h2>
-		<form action="BoardModifyPro.bo" method="post" name="modifyForm" enctype="multipart/form-data">
+		<form action="BoardModifyPro.bo" method="post" name="modifyForm">
 			<input type="hidden" name="board_num" value="${param.board_num }" />
 			<input type="hidden" name="pageNum" value="${param.pageNum }" />
 			<table>
@@ -80,13 +81,8 @@
 									required="required">${board.board_content }</textarea>
 					</td>
 				</tr>
-				<tr>
-					<td class="td_left"><label for="file">파일 첨부</label></td>
-					<td class="td_right">
-						<input type="file" name="file"/><br>
-						(기존 파일 : ${board.board_file })
-					</td>
-				</tr>
+				<!-- 파일 등록 버튼 및 기존 파일 표시 -->
+				
 			</table>
 			<section id="commandCell">
 				<input type="submit" value="수정">&nbsp;&nbsp;

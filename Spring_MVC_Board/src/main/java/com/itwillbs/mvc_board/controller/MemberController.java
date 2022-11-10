@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,16 +37,29 @@ public class MemberController {
 	@PostMapping(value = "/MemberJoinPro.me")
 	public String joinPro(@ModelAttribute MemberVO member, Model model) {
 		// 파라미터로 전달받은 패스워드를 암호화 후 덮어쓰기("SHA-256" 알고리즘 사용)
-		MyMessageDigest md = new MyMessageDigest("SHA-256");
-		member.setPasswd(md.hashing(member.getPasswd()));
+//		MyMessageDigest md = new MyMessageDigest("SHA-256");
+//		member.setPasswd(md.hashing(member.getPasswd()));
 //		System.out.println(member);
-		
+
+		// ------------------ BCryptPasswordEncoder 활용한 해싱 ----------------------
+		// BCryptPasswordEncoder 를 활용하여 해싱할 경우 Salting 을 통해
+		// 동일한 평문이라도 매번 다른 결과값을 갖는 해싱이 가능하다!
+		// 1. BCryptPasswordEncoder 객체 생성(spring-security-web 라이브러리 필수)
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		// 2. BCryptPasswordEncoder 객체의 encode() 메서드를 호출하여 해싱 결과 리턴
+		//    => 파라미터 : 평문    리턴타입 : String
+		String securePasswd = encoder.encode(member.getPasswd());
+//		System.out.println(securePasswd);
+		// 3. MemberVO 객체의 패스워드에 암호문 저장
+		member.setPasswd(securePasswd);
+		// ---------------------------------------------------------------------------
 		// MemberService 객체의 joinMember() 메서드 호출
 		// => 파라미터 : MemberVO 객체   리턴타입 : int(insertCount)
 //		MemberService service = new MemberService();
 		// @AutoWired 어노테이션을 통해 MemberService 객체를 별도로 생성하지 않아도 
 		// 자동 주입(= 의존 주입 = DI)되므로 객체를 직접 생성하지 않고 사용 가능
 		int insertCount = service.joinMember(member);
+//		int insertCount = 0;
 		
 		if(insertCount > 0) { // 가입 성공
 //			System.out.println("가입 성공!");
@@ -71,20 +85,34 @@ public class MemberController {
 	@PostMapping(value = "/MemberLoginPro.me")
 	public String loginPro(@ModelAttribute MemberVO member, Model model, HttpSession session) {
 		// 파라미터로 전달받은 패스워드를 암호화 후 덮어쓰기("SHA-256" 알고리즘 사용)
-		MyMessageDigest md = new MyMessageDigest("SHA-256");
-		member.setPasswd(md.hashing(member.getPasswd()));
+//		MyMessageDigest md = new MyMessageDigest("SHA-256");
+//		member.setPasswd(md.hashing(member.getPasswd()));
 		// MemberService - loginMember() 호출
 		// => 파라미터 : MemberVO 객체, 리턴타입 : MemberVO(memberResult)
-		MemberVO memberResult = service.loginMember(member);
+//		MemberVO memberResult = service.loginMember(member);
 		
-		if(memberResult == null) {
+		// ------------------ BCryptPasswordEncoder 활용한 로그인 판별 ----------------------
+		// 1. BCryptPasswordEncoder 객체 생성
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		// 2. member 테이블에서 id 에 해당하는 패스워드 조회 후 리턴값 저장(getPasswd())
+		//    => 파라미터 : 아이디    리턴타입 : String(passwd)
+		String passwd = service.getPasswd(member.getId());
+//		System.out.println(passwd);
+		
+		// 3. 조회 결과를 활용하여 로그인 성공 여부 판별
+		//    1) 아이디가 없을 경우(passwd 값이 null) 실패
+		//    2) 패스워드 비교(BCryptPasswordEncoder 객체의 matches() 메서드 활용)
+		//       2-1) 다를 경우 실패
+		//       2-2) 같을 경우 성공
+		if(passwd == null || !encoder.matches(member.getPasswd(), passwd)) {
 //			System.out.println("로그인 실패!");
 			model.addAttribute("msg", "로그인 실패!");
 			return "member/fail_back";
 		} else {
 //			System.out.println("로그인 성공!");
 			// HttpSession 객체에 세션 아이디 저장 후 메인페이지로 이동(Redirect 방식)
-			session.setAttribute("sId", memberResult.getId());
+			session.setAttribute("sId", member.getId());
 			return "redirect:/";
 		}
 		

@@ -143,19 +143,19 @@
 		// 이름, 아이디, 패스워드 입력 항목 체크가 정상일 경우에만 회원가입 수행
 		// => 아닐 경우 각 항목에 대한 경고 메세지 출력 및 회원가입 작업 중단
 		// => 단, 각 체크 항목에 대한 판별을 위해 전역변수로 체크할 변수 선언 필요
-		if(!checkNameResult) {
-			alert("이름 항목 입력값 체크 필수!");
-			$("#name").select();
-			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
-		} else if(!checkIdResult) {
-			alert("아이디 항목 입력값 체크 필수!");
-			$("#id").select();
-			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
-		} else if(!checkPasswdResult) {
-			alert("패스워드 항목 입력값 체크 필수!");
-			$("#passwd").select();
-			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
-		}
+// 		if(!checkNameResult) {
+// 			alert("이름 항목 입력값 체크 필수!");
+// 			$("#name").select();
+// 			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
+// 		} else if(!checkIdResult) {
+// 			alert("아이디 항목 입력값 체크 필수!");
+// 			$("#id").select();
+// 			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
+// 		} else if(!checkPasswdResult) {
+// 			alert("패스워드 항목 입력값 체크 필수!");
+// 			$("#passwd").select();
+// 			return false; // 현재 폼의 submit 동작을 중단하기 위해 false 리턴
+// 		}
 		
 		// 위의 모든 조건이 해당되지 않으면(= 모두 true 이면) submit 동작 수행
 		return true;

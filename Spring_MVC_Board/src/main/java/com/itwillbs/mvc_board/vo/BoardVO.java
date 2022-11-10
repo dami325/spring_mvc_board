@@ -42,7 +42,7 @@ public class BoardVO {
 	private int board_re_seq;
 	private int board_readcount;
 	private Date board_date; // java.sql.Date
-	private MultipartFile file; // 파일 처리(input type="file")를 위한 MultipartFile 타입 선언
+	private MultipartFile file; // 파일 처리(input type="file")를 위한 MultipartFile 타입 선언 
 	
 	public int getBoard_num() {
 		return board_num;

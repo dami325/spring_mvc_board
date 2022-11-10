@@ -30,10 +30,24 @@
 	=> 단, SELECT 태그는 조회 결과를 저장할 객체의 타입을 resultType 속성을 통해 지정해야함
 	   주로, VO 클래스명 지정(사용자 정의 클래스의 경우 패키지명 포함)
 	-->
-	<select id="loginMember" resultType="com.itwillbs.mvc_board.vo.MemberVO">
-		SELECT * FROM member
-		WHERE id=#{id} AND passwd=#{passwd}
+<!-- 	<select id="loginMember" resultType="com.itwillbs.mvc_board.vo.MemberVO"> -->
+<!-- 		SELECT * FROM member -->
+<!-- 		WHERE id=#{id} AND passwd=#{passwd} -->
+<!-- 	</select> -->
+	
+	<!-- 
+	BCryptPasswordEncoder 객체를 활용하여 로그인을 수행할 때
+	암호문으로 저장되어 있는 패스워드 조회하기 위한 SELECT 구문 작성
+	=> 이 때, MemberVO 타입을 resultType 으로 선언해도 되지만
+	   패스워드 컬럼 1개의 문자 데이터이므로 string(String) 타입으로 선언해도 된다!
+	-->
+	<select id="selectPasswd" resultType="string">
+		SELECT passwd 
+		FROM member
+		WHERE id = #{id}
 	</select>
+	
+	
 	
 	<!-- 
 	3. 회원 정보 조회 수행을 위한 select 태그 작성
@@ -88,32 +102,33 @@
 <!-- 			SET  -->
 <!-- 				name = #{member.name}, -->
 <!-- 				gender = #{member.gender}, -->
-<!-- 				email = #{member.email} -->
-<!-- 				<if test="newPasswd != null and newPasswd !=''"> -->
-<!-- 				,passwd = #{newPasswd} -->
+<!-- 				email = #{member.email}, -->
+<!-- 				<if test="newPasswd != null and newPasswd != ''"> -->
+<!-- 					passwd = #{newPasswd} -->
 <!-- 				</if> -->
 <!-- 			WHERE  -->
 <!-- 				id = #{member.id} AND passwd = #{member.passwd} -->
 <!-- 	</update> -->
 
-		<!-- 만약, 이름, 성별, 이메일, 새패스워드가 널스트링이 입력된다고 가정했을 때 각 항목 판별  -->
-		<!-- 각 if 문들로 인해 마지막 콤마(,)가 SET 절의 마지막 항목에 포함될 수 있으므로 -->
-		<!-- trim 태그를 사용하여 SET 절에 포함되는 내용 중 마지막(suffix)에 오는 콤마(,)를 제거 -->
-		<!-- https://mybatis.org/mybatis-3/ko/dynamic-sql.html <<<<마이바티스 동적 SQL 예제사이트 -->
-		<update id="updateMember">
+	<!-- 만약, 이름, 성별, 이메일, 새패스워드가 널스트링이 입력된다고 가정했을 때 각 항목 판별 -->
+	<!-- 
+	각 if 문들로 인해 콤마(,)가 SET 절의 마지막 항목에 포함될 수 있으므로
+	trim 태그를 사용하여 SET 절에 포함되는 내용 중 마지막(suffix)에 오는 콤마(,)를 제거 
+	-->
+	<update id="updateMember">
 		UPDATE member
 			<trim prefix="SET" suffixOverrides=",">
-				<if test="member.name != null and member.name !=''">
-				name = #{member.name},
+				<if test="member.name != null and member.name != ''">
+					name = #{member.name},
 				</if>
-				<if test="member.gender != null and member.gender !=''">
-				gender = #{member.gender},
+				<if test="member.gender != null and member.gender != ''">
+					gender = #{member.gender},
 				</if>
-				<if test="member.email != null and member.email !=''">
-				email = #{member.email},
+				<if test="member.email != null and member.email != ''">
+					email = #{member.email},
 				</if>
-				<if test="newPasswd != null and newPasswd !=''">
-				passwd = #{newPasswd}
+				<if test="newPasswd != null and newPasswd != ''">
+					passwd = #{newPasswd}
 				</if>
 			</trim>
 			WHERE 
