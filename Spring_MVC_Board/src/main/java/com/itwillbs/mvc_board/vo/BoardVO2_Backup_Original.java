@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Bean 클래스(DTO or VO) 정의
  * 
  */
-public class BoardVO {
+public class BoardVO2_Backup_Original {
 	// board 테이블 컬럼에 대응하는 멤버변수 선언
 	private int board_num;
 	private String board_name;
@@ -42,9 +42,7 @@ public class BoardVO {
 	private int board_re_seq;
 	private int board_readcount;
 	private Date board_date; // java.sql.Date
-//	private MultipartFile file; // 파일 처리(input type="file")를 위한 MultipartFile 타입 선언
-	// 복수개의 파일 처리를 위해 MultipartFile 을 배열 타입으로 선언
-	private MultipartFile[] files;
+	private MultipartFile file; // 파일 처리(input type="file")를 위한 MultipartFile 타입 선언 
 	
 	public int getBoard_num() {
 		return board_num;
@@ -118,19 +116,20 @@ public class BoardVO {
 	public void setBoard_date(Date board_date) {
 		this.board_date = board_date;
 	}
-	public MultipartFile[] getFiles() {
-		return files;
+	public MultipartFile getFile() {
+		return file;
 	}
-	public void setFiles(MultipartFile[] files) {
-		this.files = files;
+	public void setFile(MultipartFile file) {
+		this.file = file;
 	}
+	
 	@Override
 	public String toString() {
 		return "BoardVO [board_num=" + board_num + ", board_name=" + board_name + ", board_pass=" + board_pass
 				+ ", board_subject=" + board_subject + ", board_content=" + board_content + ", board_file=" + board_file
 				+ ", board_real_file=" + board_real_file + ", board_re_ref=" + board_re_ref + ", board_re_lev="
 				+ board_re_lev + ", board_re_seq=" + board_re_seq + ", board_readcount=" + board_readcount
-				+ ", board_date=" + board_date + ", file=" + files + "]";
+				+ ", board_date=" + board_date + ", file=" + file + "]";
 	}
 	
 }

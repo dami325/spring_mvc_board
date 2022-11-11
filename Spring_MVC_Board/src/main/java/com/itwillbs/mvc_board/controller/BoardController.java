@@ -70,47 +70,55 @@ public class BoardController {
 		}
 		
 		// BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
-		MultipartFile mFile = board.getFile();
+		// => 단, 복수개의 파라미터가 동일한 name 속성값으로 전달되므로 배열 타입으로 처리 
+		MultipartFile[] mFiles = board.getFiles();
+		System.out.println("갯수 : " + mFiles.length);
 		
-		String originalFileName = mFile.getOriginalFilename();
-		long fileSize = mFile.getSize();
-		System.out.println("파일명 : " + originalFileName);
-		System.out.println("파일크기 : " + fileSize + " Byte");
-		
-		// 파일명 중복 방지를 위한 대책
-		// 시스템에서 랜덤ID 값을 추출하여 파일명 앞에 붙여 "랜덤ID값_파일명" 형식으로 설정
-		// 랜덤ID 는 UUID 클래스 활용(UUID : 범용 고유 식별자)
-		String uuid = UUID.randomUUID().toString();
-		System.out.println("업로드 될 파일명 : " + uuid + "_" + originalFileName);
-		
-		// BoardVO 객체에 원본 파일명과 업로드 될 파일명 저장
-		// => 단, uuid 를 결합한 파일명을 사용할 경우 원본 파일명과 실제 파일명을 구분할 필요 없이
-		//    하나의 컬럼에 저장해두고, 원본 파일명이 필요할 경우 "_" 를 구분자로 지정하여
-		//    문자열을 분리하면 두번째 파라미터가 원본 파일명이 된다!
-		board.setBoard_file(originalFileName); // 실제로는 불필요한 컬럼
-		board.setBoard_real_file(uuid + "_" + originalFileName);
-		
-		int insertCount = service.registBoard(board);
-		
-		if(insertCount > 0) {
-			// 파일 등록 작업 성공 시 실제 폴더 위치에 파일 업로드 수행
-			// => MultipartFile 객체의 transferTo() 메서드를 호출하여 파일 업로드 작업 수행
-			//    (파라미터 : new File(업로드 경로, 업로드 할 파일명))
-			try {
-				mFile.transferTo(new File(saveDir, board.getBoard_real_file()));
-			} catch (IllegalStateException e) {
-				System.out.println("IllegalStateException");
-				e.printStackTrace();
-			} catch (IOException e) {
-				System.out.println("IOException");
-				e.printStackTrace();
-			}
+		// MultipartFile 배열 반복
+		for(MultipartFile mFile : mFiles) {
+			String originalFileName = mFile.getOriginalFilename();
+			long fileSize = mFile.getSize();
+			System.out.println("파일명 : " + originalFileName);
+			System.out.println("파일크기 : " + fileSize + " Byte");
 			
-			return "redirect:/BoardList.bo";
-		} else {
-			model.addAttribute("msg", "글 쓰기 실패!");
-			return "member/fail_back";
+			// 파일명 중복 방지를 위한 대책
+			// 시스템에서 랜덤ID 값을 추출하여 파일명 앞에 붙여 "랜덤ID값_파일명" 형식으로 설정
+			// 랜덤ID 는 UUID 클래스 활용(UUID : 범용 고유 식별자)
+			String uuid = UUID.randomUUID().toString();
+			System.out.println("업로드 될 파일명 : " + uuid + "_" + originalFileName);
+			
+			// BoardVO 객체에 원본 파일명과 업로드 될 파일명 저장
+			// => 단, uuid 를 결합한 파일명을 사용할 경우 원본 파일명과 실제 파일명을 구분할 필요 없이
+			//    하나의 컬럼에 저장해두고, 원본 파일명이 필요할 경우 "_" 를 구분자로 지정하여
+			//    문자열을 분리하면 두번째 파라미터가 원본 파일명이 된다!
+			board.setBoard_file(originalFileName); // 실제로는 불필요한 컬럼
+			board.setBoard_real_file(uuid + "_" + originalFileName);
+			
+//			int insertCount = service.registBoard(board);
+			int insertCount = 0;
+			
+			if(insertCount > 0) {
+				// 파일 등록 작업 성공 시 실제 폴더 위치에 파일 업로드 수행
+				// => MultipartFile 객체의 transferTo() 메서드를 호출하여 파일 업로드 작업 수행
+				//    (파라미터 : new File(업로드 경로, 업로드 할 파일명))
+				try {
+					mFile.transferTo(new File(saveDir, board.getBoard_real_file()));
+				} catch (IllegalStateException e) {
+					System.out.println("IllegalStateException");
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.out.println("IOException");
+					e.printStackTrace();
+				}
+				
+				return "redirect:/BoardList.bo";
+			} else {
+				model.addAttribute("msg", "글 쓰기 실패!");
+				return "member/fail_back";
+			}
 		}
+		
+		return "";
 		
 	}
 

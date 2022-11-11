@@ -69,18 +69,9 @@
 				<tr>
 					<td class="td_left"><label for="file">파일</label></td>
 					<td class="td_right">
-						<!-- 
-						복수개의 파일 업로드 시 name 속성값을 같게 할 경우
-						동일한 파라미터명으로 복수개의 값이 각각 전달됨
-						=> 컨트롤러에서 각각을 배열로 처리 가능 
-						-->
-						<!-- 복수개의 파일을 각각의 입력폼으로 처리할 경우 -->
-<!-- 						<input type="file" name="files" required="required" /> -->
-<!-- 						<input type="file" name="files" required="required" /> -->
-<!-- 						<input type="file" name="files" required="required" /> -->
-						
-						<!-- 복수개의 파일을 하나의 입력폼으로 처리할 경우(multiple 속성 필요) -->
-						<input type="file" name="files" required="required" multiple="multiple" />
+						<input type="file" name="file1" required="required" />
+						<input type="file" name="file2" required="required" />
+						<input type="file" name="file3" required="required" />
 					</td>
 				</tr>
 			</table>
