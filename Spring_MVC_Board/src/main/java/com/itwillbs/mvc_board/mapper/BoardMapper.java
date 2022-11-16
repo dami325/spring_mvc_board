@@ -37,6 +37,9 @@ public interface BoardMapper {
 
 	// 답글 등록
 	int insertReplyBoard(BoardVO board);
+
+	// 실제 업로드 된 파일명 조회
+	String selectRealFile(int board_num);
 	
 }
 

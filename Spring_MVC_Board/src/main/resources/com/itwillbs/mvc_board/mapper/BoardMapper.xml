@@ -138,6 +138,14 @@
 				board_num = #{board_num}
 	</select>
 	
+	<!-- 게시물 실제 업로드 파일명 조회 -->
+	<select id="selectRealFile" resultType="string">
+		SELECT board_real_file 
+			FROM board
+			WHERE
+				board_num = #{board_num}
+	</select>
+	
 	<!-- 게시물 삭제 -->
 	<delete id="deleteBoard">
 		DELETE

@@ -255,7 +255,12 @@ public class BoardController {
 	
 	// "BoardDeletePro.bo" 서블릿 요청에 대한 글 삭제 - POST
 	@PostMapping(value = "/BoardDeletePro.bo")
-	public String deletePro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model) {
+	public String deletePro(@ModelAttribute BoardVO board, @RequestParam int pageNum, Model model, HttpSession session) {
+		// Service - getRealFile() 메서드를 호출하여 삭제 전 실제 업로드 된 파일명 조회 작업 요청
+		// => 파라미터 : 글번호, 리턴타입 : String(realFile)
+		String realFile = service.getRealFile(board.getBoard_num());
+//		System.out.println(realFile);
+		
 		// Service - removeBoard() 메서드 호출하여 삭제 작업 요청
 		// => 파라미터 : BoardVO 객체, 리턴타입 : int(deleteCount)
 		int deleteCount = service.removeBoard(board);
@@ -265,10 +270,22 @@ public class BoardController {
 		if(deleteCount == 0) {
 			model.addAttribute("msg", "패스워드 틀림!");
 			return "member/fail_back";
+		} else { // 삭제 성공 시
+			// File 객체의 delete() 메서드를 활용하여 실제 업로드 된 파일 삭제
+			String uploadDir = "/resources/upload"; // 가상의 업로드 경로
+			// => webapp/resources 폴더 내에 upload 폴더 생성 필요
+			String saveDir = session.getServletContext().getRealPath(uploadDir);
+			System.out.println("실제 업로드 경로 : " + saveDir);
+			
+			File f = new File(saveDir, realFile); // 실제 경로와 실제 파일명을 갖는 File 객체 생성
+			// 만약, 해당 경로 상에 파일이 존재할 경우 삭제
+			if(f.exists()) { // 해당 경로에 파일이 존재할 경우
+				f.delete();
+			}
+			
+			return "redirect:/BoardList.bo?pageNum=" + pageNum;
 		}
 		
-		
-		return "redirect:/BoardList.bo?pageNum=" + pageNum;
 	}
 
 	// "BoardModifyForm.bo" 서블릿 요청에 대한 글 수정 폼 - GET

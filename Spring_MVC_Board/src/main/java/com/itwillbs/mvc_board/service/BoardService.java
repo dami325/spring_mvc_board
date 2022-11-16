@@ -67,6 +67,12 @@ public class BoardService {
 	public int registReplyBoard(BoardVO board) {
 		return mapper.insertReplyBoard(board);
 	}
+
+	// 삭제 전 실제 업로드 된 파일명 조회 작업 요청
+	// => 파라미터 : 글번호, 리턴타입 : String(realFile)
+	public String getRealFile(int board_num) {
+		return mapper.selectRealFile(board_num);
+	}
 	
 }
 
