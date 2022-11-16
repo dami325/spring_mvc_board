@@ -52,9 +52,12 @@
 	<!-- 게시판 수정하기 -->
 	<section id="modifyForm">
 		<h2>글 수정하기</h2>
-		<form action="BoardModifyPro.bo" method="post" name="modifyForm">
+		<form action="BoardModifyPro.bo" method="post" name="modifyForm" enctype="multipart/form-data">
 			<input type="hidden" name="board_num" value="${param.board_num }" />
 			<input type="hidden" name="pageNum" value="${param.pageNum }" />
+			<!-- 기존 파일명도 함께 전달 -->
+			<input type="hidden" name="board_real_file" value="${board.board_real_file }" />
+			<input type="hidden" name="board_file" value="${board.board_file }" />
 			<table>
 				<tr>
 					<td class="td_left"><label for="board_name">글쓴이</label></td>
@@ -82,7 +85,13 @@
 					</td>
 				</tr>
 				<!-- 파일 등록 버튼 및 기존 파일 표시 -->
-				
+				<tr>
+					<td class="td_left"><label for="board_subject">제목</label></td>
+					<td class="td_right">
+						${board.board_file }<br>
+						<input type="file" name="file" />
+					</td>
+				</tr>
 			</table>
 			<section id="commandCell">
 				<input type="submit" value="수정">&nbsp;&nbsp;
