@@ -78,6 +78,12 @@
 				<th width="70">조회수</th>
 				<td>${board.board_readcount }</td>
 			</tr>
+			<tr>
+				<th width="70">FTP파일</th>
+				<td colspan="3">
+					<a href="FileDownload?fileName=${board.board_real_file }" target="_blank">${board.board_file }</a>
+				</td>
+			</tr>
 			</table>
 		</section>
 		<section id="articleContentArea">

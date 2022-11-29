@@ -20,14 +20,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.itwillbs.mvc_board.handler.FTPHandler;
 import com.itwillbs.mvc_board.service.BoardService;
 import com.itwillbs.mvc_board.vo.BoardVO;
-import com.itwillbs.mvc_board.vo.PageInfo;
 
 @Controller
 public class BoardController {
 	@Autowired
 	private BoardService service;
+	
+	private FTPHandler ftp = new FTPHandler();
 	
 	// 글 쓰기 폼 - GET
 	@GetMapping(value = "/BoardWriteForm.bo")
@@ -36,21 +38,7 @@ public class BoardController {
 	}
 	
 	// "/BoardWritePro.bo" 서블릿 요청에 대해 글쓰기 작업 수행할 writePro() - POST
-//	@PostMapping(value = "/BoardWritePro.bo")
-//	public String writePro(@ModelAttribute BoardVO board, Model model) {
-//		int insertCount = service.registBoard(board);
-//		
-//		if(insertCount > 0) {
-//			return "redirect:/BoardList.bo";
-//		} else {
-//			model.addAttribute("msg", "글 쓰기 실패!");
-//			return "member/fail_back";
-//		}
-//		
-//	}
-	
-	// "/BoardWritePro.bo" 서블릿 요청에 대해 글쓰기 작업 수행할 writePro() - POST
-	// => 파일 업로드 기능 추가
+	// => FTP 파일 업로드 기능 추가
 	@PostMapping(value = "/BoardWritePro.bo")
 	public String writePro(@ModelAttribute BoardVO board, Model model, HttpSession session) {
 		// 주의! 파일 업로드 기능을 통해 전달받은 파일 객체를 다루기 위해서는
@@ -64,7 +52,7 @@ public class BoardController {
 		String uploadDir = "/resources/upload"; // 가상의 업로드 경로
 		// => webapp/resources 폴더 내에 upload 폴더 생성 필요
 		String saveDir = session.getServletContext().getRealPath(uploadDir);
-		System.out.println("실제 업로드 경로 : " + saveDir);
+//		System.out.println("실제 업로드 경로 : " + saveDir);
 		
 		File f = new File(saveDir); // 실제 경로를 갖는 File 객체 생성
 		// 만약, 해당 경로 상에 디렉토리(폴더)가 존재하지 않을 경우 생성
@@ -73,7 +61,7 @@ public class BoardController {
 			f.mkdirs();
 		}
 		
-		// BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
+//		// BoardVO 객체에 전달된 MultipartFile 객체 꺼내기
 		MultipartFile mFile = board.getFile();
 		
 		String originalFileName = mFile.getOriginalFilename();
@@ -97,17 +85,34 @@ public class BoardController {
 		int insertCount = service.registBoard(board);
 		
 		if(insertCount > 0) {
-			// 파일 등록 작업 성공 시 실제 폴더 위치에 파일 업로드 수행
-			// => MultipartFile 객체의 transferTo() 메서드를 호출하여 파일 업로드 작업 수행
-			//    (파라미터 : new File(업로드 경로, 업로드 할 파일명))
 			try {
-				mFile.transferTo(new File(saveDir, board.getBoard_real_file()));
+				// FTP 접속
+				String ftpBaseDir = "/upload";
+				ftp.connect(ftpBaseDir);
+				
+				// ----------------------- 톰캣 업로드 --------------------------
+				// 파일 등록 작업 성공 시 톰캣의 실제 폴더 위치에 파일 업로드 수행
+				// => MultipartFile 객체의 transferTo() 메서드를 호출하여 파일 업로드 작업 수행
+				//    (파라미터 : new File(업로드 경로, 업로드 할 파일명))
+				File f2 = new File(saveDir, board.getBoard_real_file());
+				mFile.transferTo(f2);
+
+				// ----------------------- FTP 업로드 --------------------------
+				// FileInputStream 객체를 생성하여 File 객체(f2) 입력스트림에 연결
+				// => 톰캣 폴더에 업로드 된 파일을 입력스트림에 연결하여 FTP 서버로 전송(= 출력)
+				ftp.upload(f2, board.getBoard_real_file());
+				
+				// ------------- FTP 업로드 후 톰캣 업로드 파일 삭제 시 ------------
+				if(f2.exists()) {
+					f2.delete();
+				}
 			} catch (IllegalStateException e) {
-				System.out.println("IllegalStateException");
 				e.printStackTrace();
 			} catch (IOException e) {
-				System.out.println("IOException");
 				e.printStackTrace();
+			} finally {
+				// FTP 접속 해제
+				ftp.disconnect();
 			}
 			
 			return "redirect:/BoardList.bo";
@@ -115,6 +120,43 @@ public class BoardController {
 			model.addAttribute("msg", "글 쓰기 실패!");
 			return "member/fail_back";
 		}
+		
+	}
+	
+	// FTP 파일 다운로드
+	@GetMapping(value = "/FileDownload")
+	public void download(@RequestParam String fileName, HttpSession session) {
+		// 원본 파일명 추출하기(사용자가 직접 다운로드 하는 경우 필요)
+		// => 실제 파일명의 앞부분(UUID) 부분 제거
+		//    ("UUID_파일명" 에서 _ 까지를 제외한 뒷부분의 파일명 부분만 추출)
+//		String original_file = fileName.substring(fileName.indexOf("_") + 1);
+//		System.out.println("원본 파일명 : " + original_file);
+		
+		// FTP 접속
+		String ftpBaseDir = "/upload";
+		ftp.connect(ftpBaseDir);
+		
+//		String saveDir = "D:\\"; // 사용자 PC 에 직접 다운로드 시 경로
+		
+		// 가상 업로드 경로에 대한 실제 업로드 경로 알아내기
+		// => 단, request 객체에 getServletContext() 메서드 대신, session 객체로 동일한 작업 수행
+		//    (request 객체에 해당 메서드 없음)
+		String uploadDir = "/resources/upload"; // 가상의 업로드 경로
+		// => webapp/resources 폴더 내에 upload 폴더 생성 필요
+		String saveDir = session.getServletContext().getRealPath(uploadDir);
+//		System.out.println("실제 업로드 경로 : " + saveDir);
+		
+		// File 객체 생성
+//		File f = new File(saveDir, original_file); // 사용자 PC 에 파일 다운로드 시 원본 파일명 사용
+		File f = new File(saveDir, fileName); // 톰캣 서버에 파일 다운로드 시 실제 파일명 사용
+		
+		// 만약, 톰캣 업로드 폴더에 해당 파일이 존재하지 않을 경우에만 다운로드 작업 수행
+		if(!f.exists()) {
+			// download() 메서드 호출하여 File 객체(다운받아 저장될 파일 정보)와 실제 파일명 전달 
+			ftp.download(f, fileName);
+		}
+		
+		ftp.disconnect();
 		
 	}
 
